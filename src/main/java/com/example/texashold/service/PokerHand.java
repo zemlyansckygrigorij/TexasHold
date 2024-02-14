@@ -24,129 +24,73 @@ import java.util.stream.Collectors;
  * */
 
 @Getter
-public class PokerHand {
-    private List listAcceptableValuesCard=Arrays.asList(new String[]{"2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"});
-    private List listAcceptableCardKind=Arrays.asList(new String[]{"S", "H", "D","C"});
+public class PokerHand  implements Comparable<PokerHand>  {
 
-    private List<Card> cards;
-    HandValue status;
-    private int PokerHandValue = 0;
-    private Map<Integer,List<Card>> mapCardValues;
-    public PokerHand(String s) throws WrongArgException {
+    private final List<Card> cards;
+    private HandValue status;
+    private int pokerHandValue = 0;
+    private final Map<Integer,List<Card>> mapCardValues;
+    private final Map<CardKind,List<Card>> mapCardKind;
+    public PokerHand(String s) throws Exception {
         String [] cardsStr = s.trim().split(" ");
         List<String> listCardsStr = new ArrayList<>(Arrays.asList(cardsStr));
 
         listCardsStr.removeAll(Arrays.asList("", null));
-
-        // check amount arguments
         if(listCardsStr.size()!=5){
             throw new WrongArgException("неверное количество аргументов");
         }
-        // check value arguments
-        if(listCardsStr.stream().filter(c ->{
-            var arr = c.split("");
-            return arr.length != 2||!listAcceptableValuesCard.contains(arr[0])||!listAcceptableCardKind.contains(arr[1]);
-        }).count()>0) throw new WrongArgException("неверное значение аргумента");
-
-        cards = listCardsStr.stream().map(cardS ->{
-            var arr = cardS.split("");
-
-            CardKind cardKind =  Arrays.stream(CardKind.values()).filter(cKind -> cKind.kind.equalsIgnoreCase(arr[1]))
-                    .findFirst()
-                    .get();
-            int index =listAcceptableValuesCard.indexOf(arr[0]);
-            Card card = new Card(index,cardKind);
-            return card;
-        }).sorted(Comparator.comparing(с -> с.getValue())).collect(Collectors.toList());
+        cards = listCardsStr.stream().map(Card::new).sorted().collect(Collectors.toList());
         mapCardValues = cards.stream().collect(Collectors.groupingBy(Card::getValue));
+        mapCardKind = cards.stream().collect(Collectors.groupingBy(Card::getKind));
+        setStatus();
+        setPokerHandValue();
+    }
 
-        if(checkFlushRoal()){
-           status=HandValue.FLUSHROAL;
-           PokerHandValue = status.getValue();
-           return;
-        }
+    private void setPokerHandValue(){
+        pokerHandValue = pokerHandValue + status.getValue() + cards.get(cards.size()-1).getValue();
+    }
 
-        if(checkFourKind()){
-            status=HandValue.FOURKINDS;
-            PokerHandValue = status.getValue();
-            return;
-        }
 
-        if(checkStraightFlush()){
-            status=HandValue.STRAIGHTFLUSH;
-            PokerHandValue = status.getValue();
-            return;
-        }
-
-        if(checkFullHouse()){
-            status=HandValue.FULLHOUSE;
-            PokerHandValue = status.getValue();
-            return;
-        }
-
-        if(checkFlush()){
-            status=HandValue.FLUSH;
-            PokerHandValue = status.getValue();
-            return;
-        }
-
+    private void setStatus() throws Exception {
         if(checkStraight()){
-            status=HandValue.STRAIGHT;
-            PokerHandValue = status.getValue();
-            return;
-        }
-
-        if(checkThreeKind()){
-            status=HandValue.THREEKINDS;
-            PokerHandValue = status.getValue();
-            return;
-        }
-
-        if(checkTwoPairs()){
-            status=HandValue.TWOPAIRS;
-            PokerHandValue = status.getValue();
-            return;
-        }
-        if(checkPair()){
-            status = HandValue.PAIR;
-            PokerHandValue = status.getValue();
-            return;
-        }
-
-        status =HandValue.HIGHCARD;
-        PokerHandValue = cards.stream().max(Comparator.comparing(Card::getValue)).get().getValue();
-    }
-
-    public boolean checkPair(){
-        if(mapCardValues.values().stream().filter(list->list.size()==2).count()==1&&
-                mapCardValues.values().size()==4){
-            return true;
+            if(mapCardKind.size()==1){
+                if(cards.get(0).getValue()==cards.get(0).getListAcceptableValuesCard().indexOf("T")){
+                    this.status = HandValue.FLUSHROAL;
+                }else{
+                    this.status = HandValue.STRAIGHTFLUSH;
+                }
+            }else{
+                this.status = HandValue.STRAIGHT;
+            }
         }else{
-            return false;
+            if(mapCardKind.size()==1){
+                this.status = HandValue.FLUSH;
+            }else{
+                if(mapCardValues.values().stream().filter(list->list.size()==4).count()==1){
+                    this.status = HandValue.FOURKINDS;
+                }else{
+                    if(mapCardValues.values().stream().filter(list->list.size()==3).count()==1){
+                       if(mapCardValues.values().stream().filter(list->list.size()==2).count()==1){
+                           this.status = HandValue.FULLHOUSE;
+                       }else{
+                           this.status = HandValue.THREEKINDS;
+                       }
+                    }else{
+                       var count = mapCardValues.values().stream().filter(list->list.size()==2).count();
+                        switch ((int) count) {
+                            case 0 -> this.status = HandValue.HIGHCARD;
+                            case 1 -> this.status = HandValue.PAIR;
+                            case 2 -> this.status = HandValue.TWOPAIRS;
+                            default -> throw new Exception();
+                        }
+                    }
+                }
+            }
         }
-    }
-
-    public boolean checkTwoPairs(){
-        if(mapCardValues.values().stream().filter(list->list.size()==2).count()==2){
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-    public boolean checkThreeKind(){
-        if(mapCardValues.values().stream().filter(list->list.size()==3).count()==1&&mapCardValues.values().size()==3) {
-            return true;
-        }
-        return false;
     }
 
     public boolean checkStraight(){
-        if(cards.stream().collect(Collectors.groupingBy(Card::getKind)).size()==1){
-            return false;
-        }
         int iValue =cards.get(0).getValue();
-
         for(int i = 0; i< cards.size();i++){
             if(cards.get(i).getValue()!=iValue){
                 return false;
@@ -156,59 +100,8 @@ public class PokerHand {
         return true;
     }
 
-    public boolean checkFlush(){
-        if(checkStraightFlush()){
-            return false;
-        }
-        if(cards.stream().collect(Collectors.groupingBy(Card::getKind)).size()==1) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean checkFullHouse(){
-        if(mapCardValues.values().stream().filter(list->list.size()==3).count()==1&&
-                mapCardValues.values().stream().filter(list->list.size()==2).count()==1){
-            return true;
-        }
-        return false;
-    }
-
-    public boolean checkFourKind(){
-        if(mapCardValues.values().stream().filter(list->list.size()==4).count()==1){
-            return true;
-        }
-        return false;
-    }
-
-    public boolean checkStraightFlush(){
-        if(checkFlushRoal()){
-            return false;
-        }
-        if(cards.stream().collect(Collectors.groupingBy(Card::getKind)).size()!=1){
-            return false;
-        }
-        var value =cards.get(0).getValue();
-        for(int i =0;i<5;i++){
-            if(cards.get(i).getValue()!=value){
-                return false;
-            }
-            value++;
-        }
-        return true;
-    }
-
-    public boolean checkFlushRoal(){
-        if(cards.stream().collect(Collectors.groupingBy(Card::getKind)).size()!=1){
-            return false;
-        }
-        var value =8;
-        for(int i =0;i<5;i++){
-            if(cards.get(i).getValue()!=value){
-                return false;
-            }
-            value++;
-        }
-        return true;
+    @Override
+    public int compareTo(PokerHand another) {
+       return  this.getPokerHandValue() - another.getPokerHandValue();
     }
 }

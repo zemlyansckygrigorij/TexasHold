@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * */
 class ListPokerHandsTest {
     @Test
-    void sort() {
-        ListPokerHands list = new ListPokerHands();
+    void sort() throws Exception {
+       ListPokerHands list = new ListPokerHands();
         list.getListPokerHands().add( new PokerHand("   KS   2S   3S    5S  TS "));
         list.getListPokerHands().add( new PokerHand("   KS   2H   2C   2D   KH  "));
         list.getListPokerHands().add( new PokerHand("    KS   KH   5C    KD   KH "));
@@ -28,31 +28,31 @@ class ListPokerHandsTest {
         list.getListPokerHands().add( new PokerHand("    8S   4H   6C    5D  7H "));
 
         List<PokerHand> listPokerHands = list.getListPokerHands();
-        assertEquals(listPokerHands.get(0).status,HandValue.FLUSH);
-        assertEquals(listPokerHands.get(1).status,HandValue.FULLHOUSE);
-        assertEquals(listPokerHands.get(2).status,HandValue.FOURKINDS);
-        assertEquals(listPokerHands.get(3).status,HandValue.STRAIGHTFLUSH);
-        assertEquals(listPokerHands.get(4).status,HandValue.FLUSHROAL);
-        assertEquals(listPokerHands.get(5).status,HandValue.HIGHCARD);
-        assertEquals(listPokerHands.get(6).status,HandValue.TWOPAIRS);
-        assertEquals(listPokerHands.get(7).status,HandValue.HIGHCARD);
-        assertEquals(listPokerHands.get(8).status,HandValue.PAIR);
-        assertEquals(listPokerHands.get(9).status,HandValue.TWOPAIRS);
-        assertEquals(listPokerHands.get(10).status,HandValue.THREEKINDS);
-        assertEquals(listPokerHands.get(11).status,HandValue.STRAIGHT);
+        assertEquals(listPokerHands.get(0).getStatus(),HandValue.FLUSH);
+        assertEquals(listPokerHands.get(1).getStatus(),HandValue.FULLHOUSE);
+        assertEquals(listPokerHands.get(2).getStatus(),HandValue.FOURKINDS);
+        assertEquals(listPokerHands.get(3).getStatus(),HandValue.STRAIGHTFLUSH);
+        assertEquals(listPokerHands.get(4).getStatus(),HandValue.FLUSHROAL);
+        assertEquals(listPokerHands.get(5).getStatus(),HandValue.HIGHCARD);
+        assertEquals(listPokerHands.get(6).getStatus(),HandValue.TWOPAIRS);
+        assertEquals(listPokerHands.get(7).getStatus(),HandValue.HIGHCARD);
+        assertEquals(listPokerHands.get(8).getStatus(),HandValue.PAIR);
+        assertEquals(listPokerHands.get(9).getStatus(),HandValue.TWOPAIRS);
+        assertEquals(listPokerHands.get(10).getStatus(),HandValue.THREEKINDS);
+        assertEquals(listPokerHands.get(11).getStatus(),HandValue.STRAIGHT);
 
         List<PokerHand> sortedList = list.getSortedList();
-        assertEquals(sortedList.get(0).status,HandValue.HIGHCARD);
-        assertEquals(sortedList.get(1).status,HandValue.HIGHCARD);
-        assertEquals(sortedList.get(2).status,HandValue.PAIR);
-        assertEquals(sortedList.get(3).status,HandValue.TWOPAIRS);
-        assertEquals(sortedList.get(4).status,HandValue.TWOPAIRS);
-        assertEquals(sortedList.get(5).status,HandValue.THREEKINDS);
-        assertEquals(sortedList.get(6).status,HandValue.STRAIGHT);
-        assertEquals(sortedList.get(7).status,HandValue.FLUSH);
-        assertEquals(sortedList.get(8).status,HandValue.FULLHOUSE);
-        assertEquals(sortedList.get(9).status,HandValue.FOURKINDS);
-        assertEquals(sortedList.get(10).status,HandValue.STRAIGHTFLUSH);
-        assertEquals(sortedList.get(11).status,HandValue.FLUSHROAL);
+        assertEquals(sortedList.get(0).getStatus(),HandValue.HIGHCARD);
+        assertEquals(sortedList.get(1).getStatus(),HandValue.HIGHCARD);
+        assertEquals(sortedList.get(2).getStatus(),HandValue.PAIR);
+        assertEquals(sortedList.get(3).getStatus(),HandValue.TWOPAIRS);
+        assertEquals(sortedList.get(4).getStatus(),HandValue.TWOPAIRS);
+        assertEquals(sortedList.get(5).getStatus(),HandValue.THREEKINDS);
+        assertEquals(sortedList.get(6).getStatus(),HandValue.STRAIGHT);
+        assertEquals(sortedList.get(7).getStatus(),HandValue.FLUSH);
+        assertEquals(sortedList.get(8).getStatus(),HandValue.FULLHOUSE);
+        assertEquals(sortedList.get(9).getStatus(),HandValue.FOURKINDS);
+        assertEquals(sortedList.get(10).getStatus(),HandValue.STRAIGHTFLUSH);
+        assertEquals(sortedList.get(11).getStatus(),HandValue.FLUSHROAL);
     }
 }

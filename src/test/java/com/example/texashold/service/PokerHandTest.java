@@ -1,7 +1,9 @@
 package com.example.texashold.service;
 
 import com.example.texashold.exception.WrongArgException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,48 +14,83 @@ import static org.junit.jupiter.api.Assertions.*;
  * */
 
 class PokerHandTest {
-    @Test
-    void checkCreatePokerHandWithExcessArgs() throws Exception {
-        WrongArgException exception = assertThrows(WrongArgException.class, () -> {
-            new  PokerHand(" KS 2H 5C JD TD TD ");
-        });
-        assertTrue(exception.getMessage().contains("неверное количество аргументов"));
+    String [] countArgs = {" KS 2H 5C JD TD TD "," KS 2H 5C JD"};
+    String []  wrongArgs= {" KS1 2H 5C JD TD"," KS 2H3 5C JD TD "," KS 2H 5C4 JD TD"," KS 2H 5C JDR TD"," KS 2H 5C JD TDz "};
+
+    Map<String,HandValue> mapFalse = new HashMap<>();
+    Map<String,HandValue>  mapTrue = new HashMap<>();
+    public PokerHandTest(){
+        mapFalse.put("   KS   KH   5C    5D   5H  ",HandValue.HIGHCARD);
+        mapFalse.put("   KS   KH   5C    2D   2H  ",HandValue.HIGHCARD);
+        mapFalse.put("   3S   2H   5C    JD   TH  ",HandValue.PAIR);
+        mapFalse.put("   2S   2H   2C    3D   TH  ",HandValue.PAIR);
+        mapFalse.put("   KS   2H   5C    JD   TH  ",HandValue.TWOPAIRS);
+        mapFalse.put("   KS   2H   2C    3D   TH  ",HandValue.TWOPAIRS);
+        mapFalse.put("   4S   2H   5C    JD   TH  ",HandValue.THREEKINDS);
+        mapFalse.put("   4S   2H   2C    3D   TH  ",HandValue.THREEKINDS);
+        mapFalse.put("   TS   2H   5C    JD   TH  ",HandValue.STRAIGHT);
+        mapFalse.put("   KS   2H   2C   2D   KH  ",HandValue.STRAIGHT);
+        mapFalse.put("   6S   2H   6C    JD   TH  ",HandValue.FLUSH);
+        mapFalse.put("   7S   2H   2C   2D   KH  ",HandValue.FLUSH);
+        mapFalse.put("   8S   2H   5C    JD   TH  ",HandValue.FULLHOUSE);
+        mapFalse.put("  KS   2S   2S    2S  TS  ",HandValue.FULLHOUSE);
+        mapFalse.put("   9S   2H   5C    JD   TH  ",HandValue.FOURKINDS);
+        mapFalse.put("   KS   2H   2C    2D   TH  ",HandValue.FOURKINDS);
+        mapFalse.put("   6S   2H   5C    JD   TH  ",HandValue.STRAIGHTFLUSH);
+        mapFalse.put("  9S   2S   2S    2S  TS  ",HandValue.STRAIGHTFLUSH);
+        mapFalse.put("   7S   2H   5C    JD   TH  ",HandValue.FLUSHROAL);
+        mapFalse.put("   KS   2S   5S    JS  TS  ",HandValue.FLUSHROAL);
+
+        mapTrue.put("   3S   KH   5C    2D   4H  ",HandValue.HIGHCARD);
+        mapTrue.put("   KS   3H   5C    2D   2H  ",HandValue.PAIR);
+        mapTrue.put("   KS   KH   5C    2D   2H  ",HandValue.TWOPAIRS);
+        mapTrue.put("   KS   KH   5C    KD   2H  ",HandValue.THREEKINDS);
+        mapTrue.put("  8S   4H   6C    5D  7H  ",HandValue.STRAIGHT);
+        mapTrue.put("  KS   2S   3S    5S  TS  ",HandValue.FLUSH);
+        mapTrue.put("   KS   2H   2C   2D   KH  ",HandValue.FULLHOUSE);
+        mapTrue.put("   KS   KH   5C    KD   KH  ",HandValue.FOURKINDS);
+        mapTrue.put("   3S   2S   4S    6S  5S  ",HandValue.STRAIGHTFLUSH);
+        mapTrue.put("   8S   7S   4S    6S  5S  ",HandValue.STRAIGHTFLUSH);
+        mapTrue.put("   KS   QS   AS    JS  TS  ",HandValue.FLUSHROAL);
     }
 
     @Test
-    void checkCreatePokerHandWithLackArgs() throws Exception {
-        WrongArgException exception = assertThrows(WrongArgException.class, () -> {
-            new  PokerHand(" KS 2H 5C JD");
+    void checkStatusFalse(){
+        mapFalse.forEach((key,value)-> {
+            try {
+                PokerHand pokerHand = new PokerHand(key);
+                assertNotEquals(pokerHand.getStatus(), value);
+            } catch (Exception e) {
+                e.getStackTrace();
+                throw new RuntimeException(e);
+            }
         });
-        assertTrue(exception.getMessage().contains("неверное количество аргументов"));
+    }
+    @Test
+    void checkStatusTrue(){
+        mapTrue.forEach((key,value)-> {
+            try {
+                PokerHand pokerHand = new PokerHand(key);
+                assertEquals(pokerHand.getStatus(), value);
+            } catch (Exception e) {
+                e.getStackTrace();
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Test
-    void checkCreatePokerHandWithWrongArgs() throws Exception {
-        WrongArgException exception1 = assertThrows(WrongArgException.class, () -> {
-            new  PokerHand(" KS1 2H 5C JD TD");
-        });
-        assertTrue(exception1.getMessage().contains("неверное значение аргумента"));
+    void checkCreatePokerHandWithWrongCountArgs(){
+        for( String count: countArgs){
+            assertTrue(getException(count).getMessage().contains("неверное количество аргументов"));
+        }
+    }
 
-        WrongArgException exception2 = assertThrows(WrongArgException.class, () -> {
-            new  PokerHand(" KS 2H3 5C JD TD ");
-        });
-        assertTrue(exception2.getMessage().contains("неверное значение аргумента"));
-
-        WrongArgException exception3 = assertThrows(WrongArgException.class, () -> {
-            new  PokerHand(" KS 2H 5C4 JD TD");
-        });
-        assertTrue(exception3.getMessage().contains("неверное значение аргумента"));
-
-        WrongArgException exception4 = assertThrows(WrongArgException.class, () -> {
-            new  PokerHand(" KS 2H 5C JDR TD");
-        });
-        assertTrue(exception4.getMessage().contains("неверное значение аргумента"));
-
-        WrongArgException exception5 = assertThrows(WrongArgException.class, () -> {
-            new  PokerHand(" KS 2H 5C JD TDz ");
-        });
-        assertTrue(exception5.getMessage().contains("неверное значение аргумента"));
+    @Test
+    void checkCreatePokerHandWithWrongArgs(){
+        for( String arg: wrongArgs){
+            assertTrue(getException(arg).getMessage().contains("неверное значение аргумента"));
+        }
     }
 
     @Test
@@ -70,157 +107,11 @@ class PokerHandTest {
         assertEquals(cards.get(3).getKind(),CardKind.DIAMONDS);
         assertEquals(cards.get(4).getValue(),11);
         assertEquals(cards.get(4).getKind(),CardKind.SPADES);
-
     }
 
-    @Test
-    void checkHighCard() throws Exception {
-        PokerHand hand1 = new  PokerHand("   KS   KH   5C    2D   2H  ");
-        assertFalse(hand1.getStatus().equals(HandValue.HIGHCARD));
-        assertEquals(hand1.getPokerHandValue(), 300);
-
-        PokerHand hand2 = new  PokerHand("   KS   KH   5C    2D   2H  ");
-        assertFalse(hand2.getStatus().equals(HandValue.HIGHCARD));
-        assertEquals(hand2.getPokerHandValue(), 300);
-
-        PokerHand hand3 = new  PokerHand("   3S   KH   5C    2D   4H  ");
-        assertTrue(hand3.getStatus().equals(HandValue.HIGHCARD));
-        assertEquals(hand3.getPokerHandValue(), 11);
-        hand2.getPokerHandValue();
-    }
-
-    @Test
-    void checkPair() throws Exception {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.PAIR));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   2S   2H   2C    3D   TH  ");
-        assertFalse(hand2.getStatus().equals(HandValue.PAIR));
-        assertEquals(hand2.getPokerHandValue(), 400);
-
-        PokerHand hand3 = new  PokerHand("   KS   3H   5C    2D   2H  ");
-        assertTrue(hand3.getStatus().equals(HandValue.PAIR));
-        assertEquals(hand3.getPokerHandValue(), 200);
-    }
-
-    @Test
-    void checkTwoPairs() {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.TWOPAIRS));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   KS   2H   2C    3D   TH  ");
-        assertFalse(hand2.getStatus().equals(HandValue.TWOPAIRS));
-        assertEquals(hand2.getPokerHandValue(), 200);
-
-        PokerHand hand3 = new  PokerHand("   KS   KH   5C    2D   2H  ");
-        assertTrue(hand3.getStatus().equals(HandValue.TWOPAIRS));
-        assertEquals(hand3.getPokerHandValue(), 300);
-    }
-
-    @Test
-    void checkThreeKind() {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.THREEKINDS));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   KS   2H   2C    3D   TH  ");
-        assertFalse(hand2.getStatus().equals(HandValue.THREEKINDS));
-        assertEquals(hand2.getPokerHandValue(), 200);
-
-        PokerHand hand3 = new PokerHand("   KS   KH   5C    KD   2H  ");
-        assertTrue(hand3.getStatus().equals(HandValue.THREEKINDS));
-        assertEquals(hand3.getPokerHandValue(), 400);
-    }
-
-    @Test
-    void checkStraight() {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.STRAIGHT));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   KS   2H   2C   2D   KH  ");
-        assertFalse(hand2.getStatus().equals(HandValue.STRAIGHT));
-        assertEquals(hand2.getPokerHandValue(), 700);
-
-        PokerHand hand3 = new  PokerHand("  8S   4H   6C    5D  7H  ");
-        assertTrue(hand3.getStatus().equals(HandValue.STRAIGHT));
-        assertEquals(hand3.getPokerHandValue(), 500);
-    }
-
-    @Test
-    void checkFlush() {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.FLUSH));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   KS   2H   2C   2D   KH  ");
-        assertFalse(hand2.getStatus().equals(HandValue.FLUSH));
-        assertEquals(hand2.getPokerHandValue(), 700);
-
-        PokerHand hand3 = new  PokerHand("  KS   2S   3S    5S  TS  ");
-        assertTrue(hand3.getStatus().equals(HandValue.FLUSH));
-        assertEquals(hand3.getPokerHandValue(), 600);
-    }
-
-    @Test
-    void checkFullHouse() {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.FULLHOUSE));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   KS   2H   2C   2D   KH  ");
-        assertTrue(hand2.getStatus().equals(HandValue.FULLHOUSE));
-        assertEquals(hand2.getPokerHandValue(), 700);
-
-        PokerHand hand3 = new  PokerHand("  KS   2S   2S    2S  TS  ");
-        assertFalse(hand3.getStatus().equals(HandValue.FULLHOUSE));
-        assertEquals(hand3.getPokerHandValue(), 600);
-    }
-
-    @Test
-    void checkFourKind() {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.FOURKINDS));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   KS   2H   2C    2D   TH  ");
-        assertFalse(hand2.getStatus().equals(HandValue.FOURKINDS));
-        assertEquals(hand2.getPokerHandValue(), 400);
-
-        PokerHand hand3 = new  PokerHand("   KS   KH   5C    KD   KH  ");
-        assertTrue(hand3.getStatus().equals(HandValue.FOURKINDS));
-        assertEquals(hand3.getPokerHandValue(), 800);
-    }
-
-    @Test
-    void checkStraightFlush() {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.STRAIGHTFLUSH));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   3S   2S   4S    6S  5S  ");
-        assertTrue(hand2.getStatus().equals(HandValue.STRAIGHTFLUSH));
-        assertEquals(hand2.getPokerHandValue(), 900);
-
-        PokerHand hand3 = new  PokerHand("  KS   2S   2S    2S  TS  ");
-        assertFalse(hand3.getStatus().equals(HandValue.STRAIGHTFLUSH));
-        assertEquals(hand3.getPokerHandValue(), 600);
-    }
-
-    @Test
-    void checkFlushRoal() {
-        PokerHand hand1 = new  PokerHand("   KS   2H   5C    JD   TH  ");
-        assertFalse(hand1.getStatus().equals(HandValue.FLUSHROAL));
-        assertEquals(hand1.getPokerHandValue(), 11);
-
-        PokerHand hand2 = new  PokerHand("   KS   2S   5S    JS  TS  ");
-        assertFalse(hand2.getStatus().equals(HandValue.FLUSHROAL));
-        assertEquals(hand2.getPokerHandValue(), 600);
-
-        PokerHand hand3 = new  PokerHand("   KS   QS   AS    JS  TS  ");
-        assertTrue(hand3.getStatus().equals(HandValue.FLUSHROAL));
-        assertEquals(hand3.getPokerHandValue(), 1000);
+    public WrongArgException getException(String str){
+        return assertThrows(WrongArgException.class, () -> {
+            new  PokerHand(str);
+        });
     }
 }

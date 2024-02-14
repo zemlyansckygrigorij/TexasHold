@@ -18,7 +18,7 @@ public enum HandValue {
     FOURKINDS(800),
     STRAIGHTFLUSH(900),
     FLUSHROAL(1000);
-    private int value;
+    private final int value;
 
     HandValue(int value) {
         this.value = value;

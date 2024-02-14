@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 public class WrongArgException extends RuntimeException{
-    private String message;
+    private final String message;
     public WrongArgException(String message){
         this.message =  message;
     }
