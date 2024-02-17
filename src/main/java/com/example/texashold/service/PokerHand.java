@@ -52,7 +52,7 @@ public class PokerHand  implements Comparable<PokerHand>  {
 
 
     private void setStatus() throws Exception {
-        if(checkStraight()){
+        if(isStraight()){
             if(mapCardKind.size()==1){
                 if(cards.get(0).getValue()==cards.get(0).getListAcceptableValuesCard().indexOf("T")){
                     this.status = HandValue.FLUSHROAL;
@@ -89,7 +89,7 @@ public class PokerHand  implements Comparable<PokerHand>  {
         }
     }
 
-    public boolean checkStraight(){
+    public boolean isStraight(){
         int iValue =cards.get(0).getValue();
         for(int i = 0; i< cards.size();i++){
             if(cards.get(i).getValue()!=iValue){
